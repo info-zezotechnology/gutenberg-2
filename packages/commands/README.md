@@ -26,11 +26,13 @@ For example, when a user types "contact", the Command Palette needs to filter th
 
 Static and dynamic commands can be contextual. This means that in a given context (for example, when navigating the Site Editor or editing a template), some specific commands are given more priority and are visible as soon as you open the Command Palette. Also, when typing the Command Palette, these contextual commands are shown above the rest of the commands.
 
-At the moment, two contexts have been implemented:
+At the moment, three contexts have been implemented:
 
 -   `site-editor`: This is the context that is set when you are navigating in the site editor (sidebar visible).
--   `site-editor-edit`: This is the context that is set when you are editing a document (template, template part or page) in the site editor.
-    As the usage of the Command Palette expands, more contexts will be added.
+-   `entity-edit`: This is the context that is set when you are editing a document (template, template part or page).
+-   `block-selection-edit`: This is the context that is set when a block is selected.
+
+As the usage of the Command Palette expands, more contexts will be added.
 
 Attaching a command or command loader to a given context is as simple as adding the `context` property (with the right context value from the available contexts above) to the `useCommand` or `useCommandLoader` calls.
 
@@ -61,8 +63,6 @@ _This package assumes that your code will run in an **ES2015+** environment. If 
 ### store
 
 Store definition for the commands namespace.
-
-See how the Commands Store is being used in components like [site-hub](https://github.com/WordPress/gutenberg/blob/HEAD/packages/edit-site/src/components/site-hub/index.js#L23) and [document-actions](https://github.com/WordPress/gutenberg/blob/HEAD/packages/edit-post/src/components/header/document-actions/index.js#L14).
 
 _Related_
 

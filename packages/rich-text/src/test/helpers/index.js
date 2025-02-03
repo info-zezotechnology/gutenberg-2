@@ -73,25 +73,6 @@ export const spec = [
 		},
 	},
 	{
-		description: 'should replace characters to format HTML with space',
-		html: '\n\n\r\n\t',
-		createRange: ( element ) => ( {
-			startOffset: 0,
-			startContainer: element,
-			endOffset: 1,
-			endContainer: element,
-		} ),
-		startPath: [ 0, 0 ],
-		endPath: [ 0, 1 ],
-		record: {
-			start: 0,
-			end: 1,
-			formats: [ , ],
-			replacements: [ , ],
-			text: ' ',
-		},
-	},
-	{
 		description: 'should preserve non breaking space',
 		html: 'test\u00a0 test',
 		createRange: ( element ) => ( {
@@ -565,6 +546,58 @@ export const spec = [
 						'data-disable-rich-text-onerror': "alert('1')",
 					},
 					type: 'img',
+				},
+			],
+			text: '\ufffc',
+		},
+	},
+	{
+		description: 'should preserve comments',
+		html: '<!--comment-->',
+		createRange: ( element ) => ( {
+			startOffset: 0,
+			startContainer: element,
+			endOffset: 1,
+			endContainer: element,
+		} ),
+		startPath: [ 0, 0 ],
+		endPath: [ 2, 0 ],
+		record: {
+			start: 0,
+			end: 1,
+			formats: [ , ],
+			replacements: [
+				{
+					attributes: {
+						'data-rich-text-comment': 'comment',
+					},
+					type: '#comment',
+				},
+			],
+			text: '\ufffc',
+		},
+	},
+	{
+		description: 'should preserve funky comments',
+		html: '<//funky>',
+		createRange: ( element ) => ( {
+			startOffset: 0,
+			startContainer: element,
+			endOffset: 1,
+			endContainer: element,
+		} ),
+		startPath: [ 0, 0 ],
+		endPath: [ 2, 0 ],
+		record: {
+			start: 0,
+			end: 1,
+			formats: [ , ],
+			replacements: [
+				{
+					attributes: {
+						'data-rich-text-comment': '/funky',
+					},
+					type: '#comment',
 				},
 			],
 			text: '\ufffc',

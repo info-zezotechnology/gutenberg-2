@@ -223,11 +223,26 @@ export function toTree( {
 
 		if ( character === OBJECT_REPLACEMENT_CHARACTER ) {
 			const replacement = replacements[ i ];
-			if ( ! replacement ) continue;
+			if ( ! replacement ) {
+				continue;
+			}
 			const { type, attributes, innerHTML } = replacement;
 			const formatType = getFormatType( type );
 
-			if ( ! isEditableTree && type === 'script' ) {
+			if ( isEditableTree && type === '#comment' ) {
+				pointer = append( getParent( pointer ), {
+					type: 'span',
+					attributes: {
+						contenteditable: 'false',
+						'data-rich-text-comment':
+							attributes[ 'data-rich-text-comment' ],
+					},
+				} );
+				append(
+					append( pointer, { type: 'span' } ),
+					attributes[ 'data-rich-text-comment' ].trim()
+				);
+			} else if ( ! isEditableTree && type === 'script' ) {
 				pointer = append(
 					getParent( pointer ),
 					fromFormat( {
@@ -297,6 +312,8 @@ export function toTree( {
 		if ( shouldInsertPadding && i === text.length ) {
 			append( getParent( pointer ), ZWNBSP );
 
+			// We CANNOT use CSS to add a placeholder with pseudo elements on
+			// the main block wrappers because that could clash with theme CSS.
 			if ( placeholder && text.length === 0 ) {
 				append( getParent( pointer ), {
 					type: 'span',

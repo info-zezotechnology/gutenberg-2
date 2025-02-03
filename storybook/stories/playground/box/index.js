@@ -6,13 +6,13 @@ import { registerCoreBlocks } from '@wordpress/block-library';
 import {
 	BlockEditorProvider,
 	BlockCanvas,
-	BlockTools,
+	BlockToolbar,
 } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
-import editorStyles from '../editor-styles';
+import { editorStyles } from '../editor-styles';
 import './style.css';
 
 export default function EditorBox() {
@@ -36,8 +36,8 @@ export default function EditorBox() {
 					hasFixedToolbar: true,
 				} }
 			>
-				<BlockTools />
-				<BlockCanvas height="100%" styles={ editorStyles } />
+				<BlockToolbar hideDragHandle />
+				<BlockCanvas height="500px" styles={ editorStyles } />
 			</BlockEditorProvider>
 		</div>
 	);

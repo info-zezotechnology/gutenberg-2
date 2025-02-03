@@ -2,38 +2,46 @@
  * WordPress dependencies
  */
 
-import { useContext, forwardRef } from '@wordpress/element';
+import { forwardRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import type { TabProps } from './types';
 import warning from '@wordpress/warning';
-import { TabsContext } from './context';
-import { Tab as StyledTab } from './styles';
+import { useTabsContext } from './context';
+import {
+	Tab as StyledTab,
+	TabChildren as StyledTabChildren,
+	TabChevron as StyledTabChevron,
+} from './styles';
+import type { WordPressComponentProps } from '../context';
+import { chevronRight } from '@wordpress/icons';
 
-export const Tab = forwardRef< HTMLButtonElement, TabProps >( function Tab(
-	{ children, id, className, disabled, render, style },
-	ref
-) {
-	const context = useContext( TabsContext );
-	if ( ! context ) {
-		warning( '`Tabs.TabList` must be wrapped in a `Tabs` component.' );
+export const Tab = forwardRef<
+	HTMLButtonElement,
+	Omit< WordPressComponentProps< TabProps, 'button', false >, 'id' >
+>( function Tab( { children, tabId, disabled, render, ...otherProps }, ref ) {
+	const { store, instanceId } = useTabsContext() ?? {};
+
+	if ( ! store ) {
+		warning( '`Tabs.Tab` must be wrapped in a `Tabs` component.' );
 		return null;
 	}
-	const { store, instanceId } = context;
-	const instancedTabId = `${ instanceId }-${ id }`;
+
+	const instancedTabId = `${ instanceId }-${ tabId }`;
+
 	return (
 		<StyledTab
 			ref={ ref }
 			store={ store }
 			id={ instancedTabId }
-			className={ className }
-			style={ style }
 			disabled={ disabled }
 			render={ render }
+			{ ...otherProps }
 		>
-			{ children }
+			<StyledTabChildren>{ children }</StyledTabChildren>
+			<StyledTabChevron icon={ chevronRight } />
 		</StyledTab>
 	);
 } );

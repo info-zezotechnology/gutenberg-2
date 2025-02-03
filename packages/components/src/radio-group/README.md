@@ -12,12 +12,6 @@ Use a RadioGroup component when you want users to select one option from a small
 
 ![RadioGroup component](https://wordpress.org/gutenberg/files/2018/12/s_96EC471FE9C9D91A996770229947AAB54A03351BDE98F444FD3C1BF0CED365EA_1541792995815_ButtonGroup.png)
 
-## Table of contents
-
-1. [Design guidelines](#design-guidelines)
-2. [Development guidelines](#development-guidelines)
-3. [Related components](#related-components)
-
 ## Design guidelines
 
 ### Usage
@@ -63,10 +57,10 @@ const MyControlledRadioRadioGroup = () => {
 	const [ checked, setChecked ] = useState( '25' );
 	return (
 		<RadioGroup label="Width" onChange={ setChecked } checked={ checked }>
-			<Radio value="25">25%</Radio>
-			<Radio value="50">50%</Radio>
-			<Radio value="75">75%</Radio>
-			<Radio value="100">100%</Radio>
+			<Radio __next40pxDefaultSize value="25">25%</Radio>
+			<Radio __next40pxDefaultSize value="50">50%</Radio>
+			<Radio __next40pxDefaultSize value="75">75%</Radio>
+			<Radio __next40pxDefaultSize value="100">100%</Radio>
 		</RadioGroup>
 	);
 };
@@ -86,10 +80,10 @@ import {
 const MyUncontrolledRadioRadioGroup = () => {
 	return (
 		<RadioGroup label="Width" defaultChecked="25">
-			<Radio value="25">25%</Radio>
-			<Radio value="50">50%</Radio>
-			<Radio value="75">75%</Radio>
-			<Radio value="100">100%</Radio>
+			<Radio __next40pxDefaultSize value="25">25%</Radio>
+			<Radio __next40pxDefaultSize value="50">50%</Radio>
+			<Radio __next40pxDefaultSize value="75">75%</Radio>
+			<Radio __next40pxDefaultSize value="100">100%</Radio>
 		</RadioGroup>
 	);
 };

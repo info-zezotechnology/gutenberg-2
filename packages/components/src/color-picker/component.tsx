@@ -87,6 +87,7 @@ const UnconnectedColorPicker = (
 				<AuxiliaryColorArtefactHStackHeader justify="space-between">
 					<SelectControl
 						__nextHasNoMarginBottom
+						size="compact"
 						options={ options }
 						value={ colorType }
 						onChange={ ( nextColorType ) =>
@@ -94,6 +95,7 @@ const UnconnectedColorPicker = (
 						}
 						label={ __( 'Color format' ) }
 						hideLabelFromVision
+						variant="minimal"
 					/>
 					<ColorCopyButton
 						color={ safeColordColor }

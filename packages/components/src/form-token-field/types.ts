@@ -5,6 +5,7 @@ import type {
 	ComponentPropsWithRef,
 	MouseEventHandler,
 	ReactNode,
+	FocusEvent,
 } from 'react';
 
 type Messages = {
@@ -156,6 +157,7 @@ export interface FormTokenFieldProps
 	 *
 	 * @default false
 	 * @deprecated
+	 * @ignore
 	 */
 	__next36pxDefaultSize?: boolean;
 	/**

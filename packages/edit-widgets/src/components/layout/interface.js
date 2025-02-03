@@ -3,7 +3,7 @@
  */
 import { useViewportMatch } from '@wordpress/compose';
 import { BlockBreadcrumb } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	InterfaceSkeleton,
@@ -11,7 +11,6 @@ import {
 	store as interfaceStore,
 } from '@wordpress/interface';
 import { __ } from '@wordpress/i18n';
-import { store as keyboardShortcutsStore } from '@wordpress/keyboard-shortcuts';
 import { store as preferencesStore } from '@wordpress/preferences';
 
 /**
@@ -43,8 +42,6 @@ function Interface( { blockEditorSettings } ) {
 		hasSidebarEnabled,
 		isInserterOpened,
 		isListViewOpened,
-		previousShortcut,
-		nextShortcut,
 	} = useSelect(
 		( select ) => ( {
 			hasSidebarEnabled: !! select(
@@ -56,20 +53,9 @@ function Interface( { blockEditorSettings } ) {
 				'core/edit-widgets',
 				'showBlockBreadcrumbs'
 			),
-			previousShortcut: select(
-				keyboardShortcutsStore
-			).getAllShortcutKeyCombinations(
-				'core/edit-widgets/previous-region'
-			),
-			nextShortcut: select(
-				keyboardShortcutsStore
-			).getAllShortcutKeyCombinations( 'core/edit-widgets/next-region' ),
 		} ),
 		[]
 	);
-
-	const [ listViewToggleElement, setListViewToggleElement ] =
-		useState( null );
 
 	// Inserter and Sidebars are mutually exclusive
 	useEffect( () => {
@@ -97,21 +83,9 @@ function Interface( { blockEditorSettings } ) {
 				...interfaceLabels,
 				secondarySidebar: secondarySidebarLabel,
 			} }
-			header={
-				<Header setListViewToggleElement={ setListViewToggleElement } />
-			}
-			secondarySidebar={
-				hasSecondarySidebar && (
-					<SecondarySidebar
-						listViewToggleElement={ listViewToggleElement }
-					/>
-				)
-			}
-			sidebar={
-				hasSidebarEnabled && (
-					<ComplementaryArea.Slot scope="core/edit-widgets" />
-				)
-			}
+			header={ <Header /> }
+			secondarySidebar={ hasSecondarySidebar && <SecondarySidebar /> }
+			sidebar={ <ComplementaryArea.Slot scope="core/edit-widgets" /> }
 			content={
 				<>
 					<WidgetAreasBlockEditorContent
@@ -127,10 +101,6 @@ function Interface( { blockEditorSettings } ) {
 					</div>
 				)
 			}
-			shortcuts={ {
-				previous: previousShortcut,
-				next: nextShortcut,
-			} }
 		/>
 	);
 }

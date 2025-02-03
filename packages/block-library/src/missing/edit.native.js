@@ -1,12 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	View,
-	Text,
-	TouchableWithoutFeedback,
-	TouchableOpacity,
-} from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 /**
  * WordPress dependencies
@@ -14,7 +9,7 @@ import {
 import { Icon } from '@wordpress/components';
 import { compose, withPreferredColorScheme } from '@wordpress/compose';
 import { coreBlocks } from '@wordpress/block-library';
-import { normalizeIconObject } from '@wordpress/blocks';
+import { normalizeIconObject, rawHandler, serialize } from '@wordpress/blocks';
 import { Component } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { help, plugins } from '@wordpress/icons';
@@ -24,6 +19,8 @@ import {
 	UnsupportedBlockDetails,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
+import { store as noticesStore } from '@wordpress/notices';
+import { requestUnsupportedBlockFallback } from '@wordpress/react-native-bridge';
 
 /**
  * Internal dependencies
@@ -33,6 +30,8 @@ import styles from './style.scss';
 // Blocks that can't be edited through the Unsupported block editor identified by their name.
 const UBE_INCOMPATIBLE_BLOCKS = [ 'core/block' ];
 const I18N_BLOCK_SCHEMA_TITLE = 'block title';
+
+const EMPTY_ARRAY = [];
 
 export class UnsupportedBlockEdit extends Component {
 	constructor( props ) {
@@ -45,9 +44,38 @@ export class UnsupportedBlockEdit extends Component {
 	}
 
 	toggleSheet() {
+		const { attributes, block, clientId } = this.props;
+		const { originalName } = attributes;
+		const title = this.getTitle();
+		const blockContent = serialize( block ? [ block ] : [] );
+
+		if ( this.canEditUnsupportedBlock() ) {
+			requestUnsupportedBlockFallback(
+				blockContent,
+				clientId,
+				originalName,
+				title
+			);
+			return;
+		}
+
 		this.setState( {
 			showHelp: ! this.state.showHelp,
 		} );
+	}
+
+	canEditUnsupportedBlock() {
+		const {
+			canEnableUnsupportedBlockEditor,
+			isEditableInUnsupportedBlockEditor,
+			isUnsupportedBlockEditorSupported,
+		} = this.props;
+
+		return (
+			! canEnableUnsupportedBlockEditor &&
+			isUnsupportedBlockEditorSupported &&
+			isEditableInUnsupportedBlockEditor
+		);
 	}
 
 	closeSheet() {
@@ -85,7 +113,7 @@ export class UnsupportedBlockEdit extends Component {
 				onPress={ this.onHelpButtonPressed }
 				style={ styles.helpIconContainer }
 				accessibilityLabel={ __( 'Help button' ) }
-				accessibilityRole={ 'button' }
+				accessibilityRole="button"
 				accessibilityHint={ __( 'Tap here to show help' ) }
 			>
 				<Icon
@@ -119,16 +147,39 @@ export class UnsupportedBlockEdit extends Component {
 	}
 
 	renderSheet( blockTitle, blockName ) {
-		const { clientId } = this.props;
+		const { block, clientId, createSuccessNotice, replaceBlocks } =
+			this.props;
 		const { showHelp } = this.state;
+
 		/* translators: Missing block alert title. %s: The localized block name */
 		const titleFormat = __( "'%s' is not fully-supported" );
 		const title = sprintf( titleFormat, blockTitle );
-		const description = applyFilters(
+		let description = applyFilters(
 			'native.missing_block_detail',
 			__( 'We are working hard to add more blocks with each release.' ),
 			blockName
 		);
+		let customActions = EMPTY_ARRAY;
+
+		// For Classic blocks, we offer the alternative to convert the content to blocks.
+		if ( blockName === 'core/freeform' ) {
+			description +=
+				' ' +
+				__( 'Alternatively, you can convert the content to blocks.' );
+			/* translators: displayed right after the classic block is converted to blocks. %s: The localized classic block name */
+			const successNotice = __( "'%s' block converted to blocks" );
+			customActions = [
+				{
+					label: __( 'Convert to blocks' ),
+					onPress: () => {
+						createSuccessNotice(
+							sprintf( successNotice, blockTitle )
+						);
+						replaceBlocks( block );
+					},
+				},
+			];
+		}
 
 		return (
 			<UnsupportedBlockDetails
@@ -138,13 +189,15 @@ export class UnsupportedBlockEdit extends Component {
 				customBlockTitle={ blockTitle }
 				title={ title }
 				description={ description }
+				customActions={ customActions }
 			/>
 		);
 	}
 
 	render() {
 		const { originalName } = this.props.attributes;
-		const { getStylesFromColorScheme, preferredColorScheme } = this.props;
+		const { isSelected, getStylesFromColorScheme, preferredColorScheme } =
+			this.props;
 		const blockType = coreBlocks[ originalName ];
 
 		const title = this.getTitle();
@@ -159,7 +212,11 @@ export class UnsupportedBlockEdit extends Component {
 		);
 
 		const subtitle = (
-			<Text style={ subTitleStyle }>{ __( 'Unsupported' ) }</Text>
+			<Text style={ subTitleStyle }>
+				{ this.canEditUnsupportedBlock()
+					? __( 'Tap to edit' )
+					: __( 'Unsupported' ) }
+			</Text>
 		);
 
 		const icon = blockType
@@ -171,10 +228,11 @@ export class UnsupportedBlockEdit extends Component {
 		);
 		const iconClassName = 'unsupported-icon' + '-' + preferredColorScheme;
 		return (
-			<TouchableWithoutFeedback
-				disabled={ ! this.props.isSelected }
+			<TouchableOpacity
+				disabled={ ! isSelected }
+				activeOpacity={ 0.5 }
 				accessibilityLabel={ __( 'Help button' ) }
-				accessibilityRole={ 'button' }
+				accessibilityRole="button"
 				accessibilityHint={ __( 'Tap here to show help' ) }
 				onPress={ this.toggleSheet }
 			>
@@ -184,7 +242,8 @@ export class UnsupportedBlockEdit extends Component {
 						styles.unsupportedBlockDark
 					) }
 				>
-					{ this.renderHelpIcon() }
+					{ ! this.canEditUnsupportedBlock() &&
+						this.renderHelpIcon() }
 					<View style={ styles.unsupportedBlockHeader }>
 						<Icon
 							className={ iconClassName }
@@ -196,14 +255,15 @@ export class UnsupportedBlockEdit extends Component {
 					{ subtitle }
 					{ this.renderSheet( title, originalName ) }
 				</View>
-			</TouchableWithoutFeedback>
+			</TouchableOpacity>
 		);
 	}
 }
 
 export default compose( [
-	withSelect( ( select, { attributes } ) => {
-		const { capabilities } = select( blockEditorStore ).getSettings();
+	withSelect( ( select, { attributes, clientId } ) => {
+		const { getBlock, getSettings } = select( blockEditorStore );
+		const { capabilities } = getSettings();
 		return {
 			isUnsupportedBlockEditorSupported:
 				capabilities?.unsupportedBlockEditor === true,
@@ -211,14 +271,23 @@ export default compose( [
 				capabilities?.canEnableUnsupportedBlockEditor === true,
 			isEditableInUnsupportedBlockEditor:
 				! UBE_INCOMPATIBLE_BLOCKS.includes( attributes.originalName ),
+			block: getBlock( clientId ),
 		};
 	} ),
 	withDispatch( ( dispatch, ownProps ) => {
-		const { selectBlock } = dispatch( blockEditorStore );
+		const { selectBlock, replaceBlocks } = dispatch( blockEditorStore );
+		const { createSuccessNotice } = dispatch( noticesStore );
 		return {
 			selectBlock() {
 				selectBlock( ownProps.clientId );
 			},
+			replaceBlocks( block ) {
+				replaceBlocks(
+					ownProps.clientId,
+					rawHandler( { HTML: serialize( block ) } )
+				);
+			},
+			createSuccessNotice,
 		};
 	} ),
 	withPreferredColorScheme,

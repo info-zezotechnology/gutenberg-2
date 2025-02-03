@@ -12,11 +12,17 @@ const {
  * @typedef {import('@playwright/test').FrameLocator} FrameLocator
  * @typedef {import('@wordpress/e2e-test-utils-playwright').PageUtils} PageUtils
  * @typedef {import('@wordpress/e2e-test-utils-playwright').RequestUtils} RequestUtils
+ * @typedef {import('@wordpress/e2e-test-utils-playwright').Editor} Editor
  */
 
 test.use( {
-	widgetsCustomizerPage: async ( { admin, page, pageUtils }, use ) => {
-		await use( new WidgetsCustomizerPage( { admin, page, pageUtils } ) );
+	widgetsCustomizerPage: async (
+		{ admin, page, pageUtils, editor },
+		use
+	) => {
+		await use(
+			new WidgetsCustomizerPage( { admin, page, pageUtils, editor } )
+		);
 	},
 } );
 
@@ -73,7 +79,7 @@ test.describe( 'Widgets Customizer', () => {
 		);
 
 		const inlineInserterSearchBox = page.locator(
-			'role=searchbox[name="Search for blocks and patterns"i]'
+			'role=searchbox[name="Search"i]'
 		);
 
 		await expect( inlineInserterSearchBox ).toBeFocused();
@@ -352,9 +358,7 @@ test.describe( 'Widgets Customizer', () => {
 		const legacyWidgetBlock =
 			await widgetsCustomizerPage.addBlock( 'Legacy Widget' );
 		await page
-			.locator(
-				'role=combobox[name="Select a legacy widget to display:"i]'
-			)
+			.locator( 'role=combobox[name="Legacy widget"i]' )
 			.selectOption( 'test_widget' );
 
 		await expect(
@@ -461,16 +465,6 @@ test.describe( 'Widgets Customizer', () => {
 		await expect( paragraphBlock ).toBeVisible();
 
 		await paragraphBlock.focus();
-
-		// Expect pressing the Escape key to enter navigation mode,
-		// but not close the editor.
-		await page.keyboard.press( 'Escape' );
-		await expect(
-			page.locator(
-				'css=.block-editor-block-list__layout.is-navigate-mode'
-			)
-		).toBeVisible();
-		await expect( paragraphBlock ).toBeVisible();
 	} );
 
 	test( 'should move (inner) blocks to another sidebar', async ( {
@@ -613,11 +607,13 @@ class WidgetsCustomizerPage {
 	 * @param {Admin}     config.admin
 	 * @param {Page}      config.page
 	 * @param {PageUtils} config.pageUtils
+	 * @param {Editor}    config.editor
 	 */
-	constructor( { admin, page, pageUtils } ) {
+	constructor( { admin, page, pageUtils, editor } ) {
 		this.admin = admin;
 		this.page = page;
 		this.pageUtils = pageUtils;
+		this.editor = editor;
 
 		/** @type {FrameLocator} */
 		this.previewFrame = this.page
@@ -631,10 +627,8 @@ class WidgetsCustomizerPage {
 		await this.admin.visitAdminPage( 'customize.php' );
 
 		// Disable welcome guide.
-		await this.page.evaluate( () => {
-			window.wp.data
-				.dispatch( 'core/preferences' )
-				.set( 'core/customize-widgets', 'welcomeGuide', false );
+		await this.editor.setPreferences( 'core/customize-widgets', {
+			welcomeGuide: false,
 		} );
 	}
 
@@ -657,9 +651,7 @@ class WidgetsCustomizerPage {
 			'role=toolbar[name="Document tools"i] >> role=button[name="Add block"i]'
 		);
 
-		const searchBox = this.page.locator(
-			'role=searchbox[name="Search for blocks and patterns"i]'
-		);
+		const searchBox = this.page.locator( 'role=searchbox[name="Search"i]' );
 
 		// Clear the input.
 		await searchBox.evaluate( ( node ) => {

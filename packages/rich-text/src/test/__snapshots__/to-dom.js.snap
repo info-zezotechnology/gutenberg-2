@@ -272,6 +272,21 @@ exports[`recordToDom should not error with overlapping formats (2) 1`] = `
 </body>
 `;
 
+exports[`recordToDom should preserve comments 1`] = `
+<body>
+  
+  <span
+    contenteditable="false"
+    data-rich-text-comment="comment"
+  >
+    <span>
+      comment
+    </span>
+  </span>
+  
+</body>
+`;
+
 exports[`recordToDom should preserve emoji 1`] = `
 <body>
   🍒
@@ -289,6 +304,21 @@ exports[`recordToDom should preserve emoji in formatting 1`] = `
 </body>
 `;
 
+exports[`recordToDom should preserve funky comments 1`] = `
+<body>
+  
+  <span
+    contenteditable="false"
+    data-rich-text-comment="/funky"
+  >
+    <span>
+      /funky
+    </span>
+  </span>
+  
+</body>
+`;
+
 exports[`recordToDom should preserve non breaking space 1`] = `
 <body>
   test  test
@@ -299,11 +329,5 @@ exports[`recordToDom should remove padding 1`] = `
 <body>
   
   ﻿
-</body>
-`;
-
-exports[`recordToDom should replace characters to format HTML with space 1`] = `
-<body>
-   
 </body>
 `;

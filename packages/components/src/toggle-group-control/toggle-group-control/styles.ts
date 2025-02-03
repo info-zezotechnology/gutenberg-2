@@ -19,14 +19,54 @@ export const toggleGroupControl = ( {
 } ) => css`
 	background: ${ COLORS.ui.background };
 	border: 1px solid transparent;
-	border-radius: ${ CONFIG.controlBorderRadius };
+	border-radius: ${ CONFIG.radiusSmall };
 	display: inline-flex;
 	min-width: 0;
-	padding: 2px;
 	position: relative;
 
 	${ toggleGroupControlSize( size ) }
 	${ ! isDeselectable && enclosingBorders( isBlock ) }
+
+	@media not ( prefers-reduced-motion ) {
+		&[data-indicator-animated]::before {
+			transition-property: transform, border-radius;
+			transition-duration: 0.2s;
+			transition-timing-function: ease-out;
+		}
+	}
+
+	&::before {
+		content: '';
+		position: absolute;
+		pointer-events: none;
+		background: ${ COLORS.theme.foreground };
+
+		// Windows High Contrast mode will show this outline, but not the box-shadow.
+		outline: 2px solid transparent;
+		outline-offset: -3px;
+
+		/* Using a large value to avoid antialiasing rounding issues
+			when scaling in the transform, see: https://stackoverflow.com/a/52159123 */
+		--antialiasing-factor: 100;
+		/* Adjusting the border radius to match the scaling in the x axis. */
+		border-radius: calc(
+				${ CONFIG.radiusXSmall } /
+					(
+						var( --selected-width, 0 ) /
+							var( --antialiasing-factor )
+					)
+			) / ${ CONFIG.radiusXSmall };
+		left: -1px; // Correcting for border.
+		width: calc( var( --antialiasing-factor ) * 1px );
+		height: calc( var( --selected-height, 0 ) * 1px );
+		transform-origin: left top;
+		transform: translateX( calc( var( --selected-left, 0 ) * 1px ) )
+			scaleX(
+				calc(
+					var( --selected-width, 0 ) / var( --antialiasing-factor )
+				)
+			);
+	}
 `;
 
 const enclosingBorders = ( isBlock: ToggleGroupControlProps[ 'isBlock' ] ) => {
@@ -55,14 +95,18 @@ const enclosingBorders = ( isBlock: ToggleGroupControlProps[ 'isBlock' ] ) => {
 export const toggleGroupControlSize = (
 	size: NonNullable< ToggleGroupControlProps[ 'size' ] >
 ) => {
-	const heights = {
-		default: '36px',
-		'__unstable-large': '40px',
+	const styles = {
+		default: css`
+			min-height: 36px;
+			padding: 2px;
+		`,
+		'__unstable-large': css`
+			min-height: 40px;
+			padding: 3px;
+		`,
 	};
 
-	return css`
-		min-height: ${ heights[ size ] };
-	`;
+	return styles[ size ];
 };
 
 export const block = css`

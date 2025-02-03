@@ -11,10 +11,13 @@ import {
 	postList,
 	category,
 	file,
+	home,
+	verse,
 } from '@wordpress/icons';
 import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import { safeDecodeURI, filterURLForDisplay, getPath } from '@wordpress/url';
 import { pipe } from '@wordpress/compose';
+import deprecated from '@wordpress/deprecated';
 
 const ICONS_MAP = {
 	post: postList,
@@ -31,6 +34,14 @@ function SearchItemIcon( { isURL, suggestion } ) {
 		icon = globe;
 	} else if ( suggestion.type in ICONS_MAP ) {
 		icon = ICONS_MAP[ suggestion.type ];
+		if ( suggestion.type === 'page' ) {
+			if ( suggestion.isFrontPage ) {
+				icon = home;
+			}
+			if ( suggestion.isBlogHome ) {
+				icon = verse;
+			}
+		}
 	}
 
 	if ( icon ) {
@@ -53,7 +64,9 @@ function SearchItemIcon( { isURL, suggestion } ) {
 function addLeadingSlash( url ) {
 	const trimmedURL = url?.trim();
 
-	if ( ! trimmedURL?.length ) return url;
+	if ( ! trimmedURL?.length ) {
+		return url;
+	}
 
 	return url?.replace( /^\/?/, '/' );
 }
@@ -61,7 +74,9 @@ function addLeadingSlash( url ) {
 function removeTrailingSlash( url ) {
 	const trimmedURL = url?.trim();
 
-	if ( ! trimmedURL?.length ) return url;
+	if ( ! trimmedURL?.length ) {
+		return url;
+	}
 
 	return url?.replace( /\/$/, '' );
 }
@@ -85,7 +100,9 @@ const defaultTo = ( d ) => ( v ) => {
  * @return {string} the processed url to display.
  */
 function getURLForDisplay( url ) {
-	if ( ! url ) return url;
+	if ( ! url ) {
+		return url;
+	}
 
 	return pipe(
 		safeDecodeURI,
@@ -135,8 +152,20 @@ function getVisualTypeName( suggestion ) {
 		return 'front page';
 	}
 
+	if ( suggestion.isBlogHome ) {
+		return 'blog home';
+	}
+
 	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localised CPT or taxonomy label.
 	return suggestion.type === 'post_tag' ? 'tag' : suggestion.type;
 }
 
 export default LinkControlSearchItem;
+
+export const __experimentalLinkControlSearchItem = ( props ) => {
+	deprecated( 'wp.blockEditor.__experimentalLinkControlSearchItem', {
+		since: '6.8',
+	} );
+
+	return <LinkControlSearchItem { ...props } />;
+};

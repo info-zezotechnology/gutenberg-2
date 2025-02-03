@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useSetting from '../use-setting';
+import { useSettings } from '../use-settings';
 
 const RANGE_CONTROL_CUSTOM_SETTINGS = {
 	px: { max: 1000, step: 1 },
@@ -69,8 +69,9 @@ export default function HeightControl( {
 } ) {
 	const customRangeValue = parseFloat( value );
 
+	const [ availableUnits ] = useSettings( 'spacing.units' );
 	const units = useCustomUnits( {
-		availableUnits: useSetting( 'spacing.units' ) || [
+		availableUnits: availableUnits || [
 			'%',
 			'px',
 			'em',
@@ -155,12 +156,15 @@ export default function HeightControl( {
 						onChange={ onChange }
 						onUnitChange={ handleUnitChange }
 						min={ 0 }
-						size={ '__unstable-large' }
+						size="__unstable-large"
+						label={ label }
+						hideLabelFromVision
 					/>
 				</FlexItem>
 				<FlexItem isBlock>
 					<Spacer marginX={ 2 } marginBottom={ 0 }>
 						<RangeControl
+							__next40pxDefaultSize
 							value={ customRangeValue }
 							min={ 0 }
 							max={
@@ -174,6 +178,8 @@ export default function HeightControl( {
 							withInputField={ false }
 							onChange={ handleSliderChange }
 							__nextHasNoMarginBottom
+							label={ label }
+							hideLabelFromVision
 						/>
 					</Spacer>
 				</FlexItem>

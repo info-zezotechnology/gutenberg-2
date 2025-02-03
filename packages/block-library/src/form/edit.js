@@ -20,14 +20,6 @@ import {
 	formSubmissionNotificationError,
 } from './utils.js';
 
-const ALLOWED_BLOCKS = [
-	'core/paragraph',
-	'core/heading',
-	'core/form-input',
-	'core/form-submit-button',
-	'core/form-submission-notification',
-];
-
 const TEMPLATE = [
 	formSubmissionNotificationSuccess,
 	formSubmissionNotificationError,
@@ -74,7 +66,6 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
 		template: TEMPLATE,
 		renderAppender: hasInnerBlocks
 			? undefined
@@ -86,8 +77,8 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings' ) }>
 					<SelectControl
-						// __nextHasNoMarginBottom
-						// size={ '__unstable-large' }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 						label={ __( 'Submissions method' ) }
 						options={ [
 							// TODO: Allow plugins to add their own submission methods.
@@ -107,7 +98,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 						help={
 							submissionMethod === 'custom'
 								? __(
-										'Select the method to use for form submissions. Additional options for the "custom" mode can be found in the "Andvanced" section.'
+										'Select the method to use for form submissions. Additional options for the "custom" mode can be found in the "Advanced" section.'
 								  )
 								: __(
 										'Select the method to use for form submissions.'
@@ -117,6 +108,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 					{ submissionMethod === 'email' && (
 						<TextControl
 							__nextHasNoMarginBottom
+							__next40pxDefaultSize
 							autoComplete="off"
 							label={ __( 'Email for form submissions' ) }
 							value={ email }
@@ -138,6 +130,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 			{ submissionMethod !== 'email' && (
 				<InspectorControls group="advanced">
 					<SelectControl
+						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Method' ) }
 						options={ [
@@ -153,6 +146,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 						) }
 					/>
 					<TextControl
+						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						autoComplete="off"
 						label={ __( 'Form action' ) }

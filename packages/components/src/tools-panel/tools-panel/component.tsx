@@ -25,6 +25,7 @@ const UnconnectedToolsPanel = (
 		resetAllItems,
 		toggleItem,
 		headingLevel,
+		dropdownMenuProps,
 		...toolsPanelProps
 	} = useToolsPanel( props );
 
@@ -36,6 +37,7 @@ const UnconnectedToolsPanel = (
 					resetAll={ resetAllItems }
 					toggleItem={ toggleItem }
 					headingLevel={ headingLevel }
+					dropdownMenuProps={ dropdownMenuProps }
 				/>
 				{ children }
 			</ToolsPanelContext.Provider>
@@ -73,6 +75,7 @@ const UnconnectedToolsPanel = (
  *         onDeselect={ () => setHeight() }
  *       >
  *         <UnitControl
+ *           __next40pxDefaultSize
  *           label={ __( 'Height' ) }
  *           onChange={ setHeight }
  *           value={ height }
@@ -84,6 +87,7 @@ const UnconnectedToolsPanel = (
  *         onDeselect={ () => setWidth() }
  *       >
  *         <UnitControl
+ *           __next40pxDefaultSize
  *           label={ __( 'Width' ) }
  *           onChange={ setWidth }
  *           value={ width }

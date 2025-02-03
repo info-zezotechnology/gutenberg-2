@@ -421,22 +421,54 @@ test.describe( 'Autocomplete (@firefox, @webkit)', () => {
 		} );
 	} );
 
+	test( `should insert mention in a table block`, async ( {
+		page,
+		editor,
+	} ) => {
+		// Insert table block.
+		await editor.insertBlock( { name: 'core/table' } );
+
+		// Create the table.
+		await editor.canvas
+			.locator( 'role=button[name="Create Table"i]' )
+			.click();
+
+		// Select the first cell.
+		await editor.canvas
+			.locator( 'role=textbox[name="Body cell text"i] >> nth=0' )
+			.click();
+
+		// Type autocomplete text.
+		await page.keyboard.type( '@j' );
+
+		// Verify that option is selected.
+		const selectedOption = page.getByRole( 'option', {
+			name: 'Jane Doe',
+			selected: true,
+		} );
+		await expect( selectedOption ).toBeVisible();
+
+		// Insert the option.
+		await selectedOption.click();
+
+		// Verify it's been inserted.
+		const snapshot = `<!-- wp:table -->
+<figure class="wp-block-table"><table class="has-fixed-layout"><tbody><tr><td>@testuser</td><td></td></tr><tr><td></td><td></td></tr></tbody></table></figure>
+<!-- /wp:table -->`;
+		await expect.poll( editor.getEditedPostContent ).toBe( snapshot );
+	} );
+
 	// The following test concerns an infinite loop regression (https://github.com/WordPress/gutenberg/issues/41709).
 	// When present, the regression will cause this test to time out.
 	test( 'should insert elements from multiple completers in a single block', async ( {
 		page,
 		editor,
 	} ) => {
-		// The autocomplete popup is flaky when typing too fast, so we need to
-		// slow it down until it's addressed in the component.
-		// See https://github.com/WordPress/gutenberg/pull/55081
-		const typingDelay = 100;
-
 		await editor.canvas
 			.getByRole( 'button', { name: 'Add default block' } )
 			.click();
 
-		await page.keyboard.type( '@fr', { delay: typingDelay } );
+		await page.keyboard.type( '@fr' );
 		await expect(
 			page.getByRole( 'option', {
 				name: 'Frodo Baggins',
@@ -452,7 +484,7 @@ test.describe( 'Autocomplete (@firefox, @webkit)', () => {
 			},
 		] );
 
-		await page.keyboard.type( ' +bi', { delay: typingDelay } );
+		await page.keyboard.type( ' +bi' );
 		await expect(
 			page.getByRole( 'option', {
 				name: 'Bilbo Baggins',

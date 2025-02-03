@@ -35,11 +35,11 @@ import { MAX_NESTING_DEPTH } from './constants';
  * returns. Optionally, you can also pass any other props through this hook, and
  * they will be merged and returned.
  *
+ * @see https://github.com/WordPress/gutenberg/blob/master/packages/block-editor/src/components/inner-blocks/README.md
+ *
  * @param {Object} props   Optional. Props to pass to the element. Must contain
  *                         the ref if one is defined.
  * @param {Object} options Optional. Inner blocks options.
- *
- * @see https://github.com/WordPress/gutenberg/blob/master/packages/block-editor/src/components/inner-blocks/README.md
  */
 export function useInnerBlocksProps( props = {}, options = {} ) {
 	const fallbackRef = useRef();
@@ -105,8 +105,21 @@ function UncontrolledInnerBlocks( props ) {
 
 	const context = useBlockContext( clientId );
 
+	const { nestingLevel, parentLock } = useSelect(
+		( select ) => {
+			const { getBlockParents, getTemplateLock, getBlockRootClientId } =
+				select( blockEditorStore );
+			return {
+				nestingLevel: getBlockParents( clientId )?.length,
+				parentLock: getTemplateLock( getBlockRootClientId( clientId ) ),
+			};
+		},
+		[ clientId ]
+	);
+
 	useNestedSettingsUpdate(
 		clientId,
+		parentLock,
 		allowedBlocks,
 		prioritizedInserterBlocks,
 		defaultBlock,
@@ -126,13 +139,6 @@ function UncontrolledInnerBlocks( props ) {
 		templateInsertUpdatesSelection
 	);
 
-	const nestingLevel = useSelect(
-		( select ) => {
-			return select( blockEditorStore ).getBlockParents( clientId )
-				?.length;
-		},
-		[ clientId ]
-	);
 	if ( nestingLevel >= MAX_NESTING_DEPTH ) {
 		return <WarningMaxDepthExceeded clientId={ clientId } />;
 	}

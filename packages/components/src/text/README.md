@@ -132,6 +132,8 @@ function Example() {
 
 Sets `Text` to have `display: block`.
 
+Note: text truncation only works when `isBlock` is `false`.
+
 ### isDestructive
 
 **Type**: `boolean`
@@ -154,7 +156,7 @@ Adjusts all text line-height based on the typography system.
 
 **Type**: `number`
 
-Clamps the text content to the specifiec `numberOfLines`, adding the `ellipsis` at the end.
+Clamps the text content to the specific `numberOfLines`, adding the `ellipsis` at the end.
 
 ### optimizeReadabilityFor
 
@@ -196,7 +198,9 @@ function Example() {
 
 **Type**: `boolean`
 
-Enables text truncation. When `truncate` is set,we are able to truncate the long text in a variety of ways.
+Enables text truncation. When `truncate` is set, we are able to truncate the long text in a variety of ways.
+
+Note: text truncation won't work if the `isBlock` property is set to `true`
 
 ```jsx
 import { __experimentalText as Text } from '@wordpress/components';

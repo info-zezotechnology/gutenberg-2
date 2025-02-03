@@ -51,7 +51,11 @@ const meta: Meta< typeof Toolbar > = {
 		ToolbarDropdownMenu,
 	},
 	argTypes: {
-		children: { control: { type: null } },
+		children: { control: false },
+		variant: {
+			options: [ undefined, 'unstyled' ],
+			control: { type: 'radio' },
+		},
 	},
 	parameters: {
 		controls: { expanded: true },
@@ -180,4 +184,15 @@ WithoutGroup.args = {
 			<ToolbarButton icon={ link } label="Link" />
 		</>
 	),
+};
+
+/**
+ * Set the variant to `unstyled` to remove default border styles.
+ * Otherwise, leave it as `undefined` for default styles.
+ */
+
+export const Unstyled = Template.bind( {} );
+Unstyled.args = {
+	...Default.args,
+	variant: 'unstyled',
 };

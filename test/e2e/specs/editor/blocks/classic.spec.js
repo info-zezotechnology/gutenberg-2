@@ -106,7 +106,7 @@ test.describe( 'Classic', () => {
 		page,
 		pageUtils,
 	} ) => {
-		// Based on docs routing diables caching.
+		// Based on docs routing disables caching.
 		// See: https://playwright.dev/docs/api/class-page#page-route
 		await page.route( '**', async ( route ) => {
 			await route.continue();
@@ -119,12 +119,7 @@ test.describe( 'Classic', () => {
 		// Move focus away.
 		await pageUtils.pressKeys( 'shift+Tab' );
 
-		await page.click( 'role=button[name="Save draft"i]' );
-
-		await expect(
-			page.locator( 'role=button[name="Saved"i]' )
-		).toBeDisabled();
-
+		await editor.saveDraft();
 		await page.reload();
 		await page.unroute( '**' );
 
